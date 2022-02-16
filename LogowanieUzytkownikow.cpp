@@ -1,24 +1,69 @@
 #include <iostream>
-#include <fstream>
-#include <cstdlib>
-#include <conio.h>
-#include <windows.h>
+#include <string>
 #include <vector>
-#include <bits/stdc++.h>
+#include <fstream>
 #include <sstream>
-#include <stdio.h>
+#include <windows.h>
 #include "LogowanieUzytkownikow.h"
 using namespace std;
 
-vector <Uzytkownik> rejestracja(vector <Uzytkownik> uzytkownicy)
+Uzytkownik::Uzytkownik(int i, string n, string h )
+{
+    id =i;
+    nazwa = n;
+    haslo = h;
+}
+
+void Uzytkownik::pobierzDaneZliniiDlaUzytkownika(string liniaUzytkownika)
+{
+    vector <string> rozdzieloneElementy;
+    stringstream pobierz(liniaUzytkownika);
+    string elementy;
+
+    while(getline(pobierz, elementy,'|'))
+    {
+        rozdzieloneElementy.push_back(elementy);
+    }
+
+    istringstream (rozdzieloneElementy[0]) >> id;
+    nazwa = rozdzieloneElementy[1];
+    haslo =rozdzieloneElementy[2];
+}
+
+ListaUzytkownikow::ListaUzytkownikow()
+{
+    fstream listaUzytkownikow;
+    listaUzytkownikow.open("Uzytkownicy.txt", ios::in);
+    string liniaJednegoUzytkownika;
+
+    Uzytkownik uzytkownik1;
+    if(listaUzytkownikow.good()==true)
+    {
+        while(getline(listaUzytkownikow,liniaJednegoUzytkownika))
+        {
+            uzytkownik1.pobierzDaneZliniiDlaUzytkownika(liniaJednegoUzytkownika);
+            lista.push_back(uzytkownik1);
+        }
+        listaUzytkownikow.close();
+    }
+}
+
+ListaUzytkownikow::~ListaUzytkownikow()
+{
+    zapiszUzytkownikaWpliku();
+    cout<<"W tym momencie powinien zadzialac destruktor"<<endl;
+}
+
+
+void ListaUzytkownikow::rejestracja()
 {
     Uzytkownik nowyUzytkownik;
     cout<<"Podaj nazwe uzytkownika: ";
     cin>>nowyUzytkownik.nazwa;
     int i = 0;
-    while(i<uzytkownicy.size())
+    while(i<lista.size())
     {
-        if(uzytkownicy[i].nazwa == nowyUzytkownik.nazwa)
+        if(lista[i].nazwa == nowyUzytkownik.nazwa)
         {
             cout << "Taki uzytkownik istnieje. Wpisz inna nazwe uzytkownika";
             cin >> nowyUzytkownik.nazwa;
@@ -33,41 +78,38 @@ vector <Uzytkownik> rejestracja(vector <Uzytkownik> uzytkownicy)
     cout << "Podaj haslo: ";
     cin >> nowyUzytkownik.haslo;
 
-    if(uzytkownicy.size()==0)
+    if(lista.size()==0)
     {
         nowyUzytkownik.id =1;
     }
     else
     {
-        nowyUzytkownik.id = uzytkownicy[uzytkownicy.size()-1].id+1;
+        nowyUzytkownik.id = lista[lista.size()-1].id+1;
     }
-    uzytkownicy.push_back(nowyUzytkownik);
+    lista.push_back(nowyUzytkownik);
     cout<<"Konto zalozone"<<endl;
     Sleep(1000);
-    return uzytkownicy;
-
 }
 
-int logowanie(vector <Uzytkownik> uzytkownicy)
+int ListaUzytkownikow::logowanie()
 {
     string nazwa, haslo;
     cout<<"Podaj nazwe: ";
     cin>>nazwa;
     int i = 0;
-    while(i<uzytkownicy.size())
+    while(i<lista.size())
     {
-        if(uzytkownicy[i].nazwa == nazwa)
+        if(lista[i].nazwa == nazwa)
         {
             for(int proba =0; proba < 3; proba++)
             {
                 cout <<"Podaj haslo. Pozostalo prob "<<3-proba <<": "; ;
                 cin>>haslo;
-                if(uzytkownicy[i].haslo == haslo)
+                if(lista[i].haslo == haslo)
                 {
                     cout<<"Zalogowales sie."<<endl;
                     Sleep(1000);
-                    return uzytkownicy[i].id;
-
+                    return lista[i].id;
                 }
             }
             cout<<"Podales 3 razy bledne haslo. Poczekaj 3 sekundy przed kolejna proba"<<endl;
@@ -75,41 +117,39 @@ int logowanie(vector <Uzytkownik> uzytkownicy)
             return 0;
         }
         i++;
-
     }
     cout<<"Nie ma uzytkownika z takim logiem" <<endl;
     Sleep(2000);
     return 0;
 }
 
-vector <Uzytkownik> zmianaHasla(vector <Uzytkownik> uzytkownicy, int idZalogowanegoUzytkownika)
+void ListaUzytkownikow::zmianaHasla(int idZalogowanegoUzytkownika)
 {
     string haslo;
     cout <<"Podaj nowe haslo: ";
     cin>>haslo;
-    for(int i = 0; i < uzytkownicy.size(); i++)
+    for(int i = 0; i < lista.size(); i++)
     {
-        if(uzytkownicy[i].id == idZalogowanegoUzytkownika)
+        if(lista[i].id == idZalogowanegoUzytkownika)
         {
-            uzytkownicy[i].haslo = haslo;
+            lista[i].haslo = haslo;
             cout <<"Haslo zostalo zmienieone" <<endl;
             Sleep(1500);
         }
     }
-    return uzytkownicy;
 }
 
-void zapiszUzytkownikaWpliku(vector <Uzytkownik> uzytkownicy)
+void ListaUzytkownikow::zapiszUzytkownikaWpliku()
 {
     fstream plikTekstowy;
     plikTekstowy.open("Uzytkownicy.txt", ios::out);
     if(plikTekstowy.good()==true)
     {
-        for(int i =0; i<uzytkownicy.size(); i++)
+        for(int i =0; i<lista.size(); i++)
         {
-            plikTekstowy<<uzytkownicy[i].id<<"|";
-            plikTekstowy<<uzytkownicy[i].nazwa<<"|";
-            plikTekstowy<<uzytkownicy[i].haslo<<endl;
+            plikTekstowy<<lista[i].id<<"|";
+            plikTekstowy<<lista[i].nazwa<<"|";
+            plikTekstowy<<lista[i].haslo<<endl;
         }
         plikTekstowy.close();
 
@@ -121,37 +161,3 @@ void zapiszUzytkownikaWpliku(vector <Uzytkownik> uzytkownicy)
     }
 }
 
-Uzytkownik pobierzDaneZliniiDlaUzytkownika(string liniaUzytkownika)
-{
-    Uzytkownik daneUzytkownika;
-    vector <string> rozdzieloneElementy;
-    stringstream pobierz(liniaUzytkownika);
-    string elementy;
-
-    while(getline(pobierz, elementy,'|'))
-    {
-        rozdzieloneElementy.push_back(elementy);
-    }
-
-    istringstream (rozdzieloneElementy[0]) >> daneUzytkownika.id;
-    daneUzytkownika.nazwa = rozdzieloneElementy[1];
-    daneUzytkownika.haslo =rozdzieloneElementy[2];
-    return daneUzytkownika;
-}
-
-vector <Uzytkownik> wczytajUzytkownikowZpliku()
-{
-    fstream listaUzytkownikow;
-    listaUzytkownikow.open("Uzytkownicy.txt", ios::in);
-    string liniaJednegoUzytkownika;
-    vector <Uzytkownik> odczytaniUzytkownicy;
-    if(listaUzytkownikow.good()==true)
-    {
-        while(getline(listaUzytkownikow,liniaJednegoUzytkownika))
-        {
-            odczytaniUzytkownicy.push_back(pobierzDaneZliniiDlaUzytkownika(liniaJednegoUzytkownika));
-        }
-        listaUzytkownikow.close();
-    }
-    return odczytaniUzytkownicy;
-}

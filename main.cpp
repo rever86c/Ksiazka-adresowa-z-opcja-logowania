@@ -1,12 +1,5 @@
 #include <iostream>
-#include <fstream>
-#include <cstdlib>
-#include <conio.h>
-#include <windows.h>
-#include <vector>
-#include <bits/stdc++.h>
-#include <sstream>
-#include <stdio.h>
+
 #include "LogowanieUzytkownikow.h"
 #include "KsiazkaAdresowa.h"
 using namespace std;
@@ -16,7 +9,9 @@ int main()
     char wyborOpcji, wybor;
     int idZalogowanegoUzytkownika = 0;
     vector <Kontakt> kontaktyWksiazce;
-    vector <Uzytkownik> uzytkownicy = wczytajUzytkownikowZpliku();
+
+    ListaUzytkownikow uzytkownicy;
+
     while(1)
     {
         if(idZalogowanegoUzytkownika == 0)
@@ -30,12 +25,12 @@ int main()
             switch(wybor)
             {
             case '1':
-                idZalogowanegoUzytkownika = logowanie(uzytkownicy);
+                idZalogowanegoUzytkownika = uzytkownicy.logowanie();
                 kontaktyWksiazce = wczytajKontaktyZplikuZalogowanego(idZalogowanegoUzytkownika);
                 break;
             case '2':
-                uzytkownicy = rejestracja(uzytkownicy);
-                zapiszUzytkownikaWpliku(uzytkownicy);
+                uzytkownicy.rejestracja();
+                uzytkownicy.zapiszUzytkownikaWpliku();
                 oczekiwanieNaEnter();
                 break;
             case '9':
@@ -89,8 +84,8 @@ int main()
                 break;
             case '7':
                 system("cls");
-                uzytkownicy = zmianaHasla(uzytkownicy, idZalogowanegoUzytkownika);
-                zapiszUzytkownikaWpliku(uzytkownicy);
+                uzytkownicy.zmianaHasla(idZalogowanegoUzytkownika);
+                uzytkownicy.zapiszUzytkownikaWpliku();
                 oczekiwanieNaEnter();
                 break;
             case '9':

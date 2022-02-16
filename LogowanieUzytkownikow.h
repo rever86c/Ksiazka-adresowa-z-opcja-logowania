@@ -1,23 +1,39 @@
 #include <iostream>
-#include <fstream>
-#include <cstdlib>
-#include <conio.h>
-#include <windows.h>
+#include <string>
 #include <vector>
-#include <bits/stdc++.h>
+#include <fstream>
 #include <sstream>
-#include <stdio.h>
+#include <windows.h>
 using namespace std;
 
-struct Uzytkownik
+class Uzytkownik
 {
     int id;
     string nazwa, haslo;
+
+public:
+    Uzytkownik(int = 0, string ="", string="");
+    void pobierzDaneZliniiDlaUzytkownika(string liniaUzytkownika);
+
+friend class ListaUzytkownikow;
+
+
 };
 
-vector <Uzytkownik> rejestracja(vector <Uzytkownik> uzytkownicy);
-int logowanie(vector <Uzytkownik> uzytkownicy);
-vector <Uzytkownik> zmianaHasla(vector <Uzytkownik> uzytkownicy, int idZalogowanegoUzytkownika);
-void zapiszUzytkownikaWpliku(vector <Uzytkownik> uzytkownicy);
-Uzytkownik pobierzDaneZliniiDlaUzytkownika(string liniaUzytkownika);
-vector <Uzytkownik> wczytajUzytkownikowZpliku();
+class ListaUzytkownikow
+{
+    vector <Uzytkownik> lista;
+
+public:
+    ListaUzytkownikow();
+    ~ListaUzytkownikow();
+    void rejestracja();
+    int logowanie();
+    void zmianaHasla(int idZalogowanegoUzytkownika);
+    void zapiszUzytkownikaWpliku();
+
+};
+
+
+
+
